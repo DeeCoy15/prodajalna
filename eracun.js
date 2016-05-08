@@ -212,8 +212,11 @@ streznik.post('/prijava', function(zahteva, odgovor) {
       //add fields and finalize
       stmt.run(polja.FirstName, polja.LastName, polja.Company, polja.Address, polja.City, polja.State, polja.Country, polja.PostalCode, polja.Phone, polja.Fax, polja.Email, 3); 
       stmt.finalize();
+      zahteva.session.message = "Stranka je bila uspešno registrirana.";
+      odgovor.redirect('/prijava');
+      
     } catch (err) {
-      napaka2 = true;
+      zahteva.session.message = "Prišlo je do napake pri registraciji nove stranke. Prosim preverite vnešene podatke in poskusite znova.";
     }
   
     odgovor.end();
@@ -222,9 +225,15 @@ streznik.post('/prijava', function(zahteva, odgovor) {
 
 // Prikaz strani za prijavo
 streznik.get('/prijava', function(zahteva, odgovor) {
+  var message="";
+  if(zahteva.session.message != "")
+  {
+    message=zahteva.session.message;
+    zahteva.session.message="";
+  }
   vrniStranke(function(napaka1, stranke) {
       vrniRacune(function(napaka2, racuni) {
-        odgovor.render('prijava', {sporocilo: "", seznamStrank: stranke, seznamRacunov: racuni});  
+        odgovor.render('prijava', {sporocilo: message, seznamStrank: stranke, seznamRacunov: racuni});  
       }) 
     });
 })
